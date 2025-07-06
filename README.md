@@ -17,7 +17,7 @@ A few scripts to gather & analyze bits of us from Instagram & Youtube takeouts, 
 - **Time series & seasonal plots**
 
 ### Daylio
-- **Time-series plots** of smoked cigarettes per day
+- **Time-series plots** of smoked cigarettes per day (this is what I use this App for 😬)
 
 ## Quick Start
 
