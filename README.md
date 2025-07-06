@@ -240,8 +240,6 @@ Other utilities:
 - https://webapps.stackexchange.com/questions/72787/how-to-create-a-youtube-playlist-from-a-list-of-links
 </details>
 
-## Usage
-
 ### Daylio
 
 #### Plots
