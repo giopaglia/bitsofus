@@ -85,6 +85,13 @@ python youtube-playlists.py
 python youtube-myvideos.py
 ```
 
+### Daylio
+
+#### Informative plots
+```bash
+python daylio-smoking.py
+```
+
 ## Data Sources
 
 ### Instagram Takeout
@@ -239,13 +246,6 @@ Thx to @evdokimovm for [a starter](https://gist.github.com/evdokimovm/cd46cf17b0
 Other utilities:
 - https://webapps.stackexchange.com/questions/72787/how-to-create-a-youtube-playlist-from-a-list-of-links
 </details>
-
-### Daylio
-
-#### Plots
-```bash
-python daylio-smoking.py
-```
 
 
 ## Important Notes
