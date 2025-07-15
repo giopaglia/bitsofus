@@ -9,6 +9,9 @@ from dotenv import load_dotenv
 import glob
 import sys
 from yt_dlp import YoutubeDL
+import re
+from dateutil.relativedelta import relativedelta
+from datetime import datetime
 
 load_dotenv()
 
@@ -181,6 +184,27 @@ def load_blacklist():
 
 blacklist = load_blacklist()
 
+def parse_date_posted(date_posted_str, file_creation_time):
+    """
+    Calcola la data effettiva a partire da 'Date Posted' e dalla data di creazione del file.
+    """
+    # Rimuovi prefissi inutili
+    s = date_posted_str.lower().replace("trasmesso in streaming", "").strip()
+    # Cerca pattern come '3 anni fa', '9 mesi fa', '14 giorni fa'
+    match = re.match(r"(\d+)\s+(anno|anni|mese|mesi|giorno|giorni)\s*fa", s)
+    if not match:
+        return None
+    n = int(match.group(1))
+    unit = match.group(2)
+    dt = datetime.fromtimestamp(file_creation_time)
+    if "anno" in unit:
+        return dt - relativedelta(years=n)
+    elif "mese" in unit:
+        return dt - relativedelta(months=n)
+    elif "giorno" in unit:
+        return dt - relativedelta(days=n)
+    return None
+
 # MAIN
 existing_state = read_state()
 already_downloaded_ids = set(existing_state["video_id"])
@@ -236,11 +260,24 @@ for transfername, cfg in DOWNLOAD_CONFIG.items():
 		print()
 		print(f"[{i_row}/{len(df_all)}] {video_id}")
 
-		timestamp = row.get(
-			"Timestamp della creazione del video della playlist",
-			datetime.datetime.now(datetime.UTC)
-		)
-		dt_added = datetime.datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
+		timestamp = row.get("Timestamp della creazione del video della playlist")
+		if timestamp and timestamp != "[Date Unavailable]":
+			dt_added = datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
+		else:
+			date_posted = row.get("Date Posted")
+			if date_posted and date_posted != "[Date Unavailable]":
+				# Trova il file video corrispondente
+				filename_base = f"{slugify(row.get('Title', ''))}_{slugify(row.get('Channel', ''))}"
+				for ext in ("mp4", "mp3", "webm"):
+					fp = target_dir / f"{filename_base}.{ext}"
+					if fp.exists():
+						file_creation_time = os.path.getctime(fp)
+						dt_added = parse_date_posted(date_posted, file_creation_time)
+						break
+				else:
+					dt_added = datetime.now()  # fallback
+			else:
+				dt_added = datetime.now()  # fallback
 
 		try:
 			meta = get_video_metadata(video_id)
